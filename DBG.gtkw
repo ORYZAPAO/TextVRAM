@@ -1,0 +1,59 @@
+[*]
+[*] GTKWave Analyzer v3.3.126 (w)1999-2026 BSI
+[*] Thu Feb  5 13:00:22 2026
+[*]
+[dumpfile] "/home/zosan/github/TextVRAM/tb_text_vram.vcd"
+[dumpfile_mtime] "Thu Feb  5 10:54:28 2026"
+[dumpfile_size] 122872198
+[savefile] "/home/zosan/github/TextVRAM/DBG.gtkw"
+[timestart] 16799632000
+[size] 2010 1421
+[pos] 1425 494
+*-17.908606 16799887000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] tb_text_vram.
+[treeopen] tb_text_vram.dut.
+[sst_width] 309
+[signals_width] 302
+[sst_expanded] 1
+[sst_vpaned_height] 607
+@28
+tb_text_vram.dut.u_font_rom.clk
+@22
+tb_text_vram.dut.u_font_rom.char_code[6:0]
+@28
+tb_text_vram.dut.u_font_rom.row[2:0]
+@200
+-
+@28
+tb_text_vram.dut.vsync
+tb_text_vram.dut.hsync
+tb_text_vram.dut.pixel_en
+tb_text_vram.dut.pixel_data
+@200
+-
+@24
+tb_text_vram.dut.pixel_x[11:0]
+tb_text_vram.dut.pixel_y[11:0]
+@200
+-
+@24
+tb_text_vram.dut.char_col[6:0]
+tb_text_vram.dut.char_row[6:0]
+@200
+-
+@24
+tb_text_vram.dut.char_x[2:0]
+tb_text_vram.dut.char_y[2:0]
+@200
+-
+@28
+tb_text_vram.dut.pixel_clk
+@22
+tb_text_vram.dut.vram_addr[12:0]
+>-24500000
+tb_text_vram.dut.char_code[7:0]
+@29
+>0
+tb_text_vram.dut.font_row_data[7:0]
+[pattern_trace] 1
+[pattern_trace] 0
