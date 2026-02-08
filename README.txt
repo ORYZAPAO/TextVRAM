@@ -1,5 +1,8 @@
 ● 作成完了しました。以下のファイル構成です。                                                                                                  
-                                                                                                                                              
+
+
+
+
   tvram/                                                                                                                                      
   ├── vga_timing.v      # VGAタイミングジェネレータ                                                                                           
   ├── font_rom.v        # 8x8 ASCIIフォントROM                                                                                                
