@@ -21,7 +21,7 @@ module text_vram_top #(
     // Text screen size (calculated from display and character size)
     parameter COLS = H_ACTIVE / CHAR_WIDTH,   // 80 columns for 640px
     parameter ROWS = V_ACTIVE / CHAR_HEIGHT,  // 60 rows for 480px
-    parameter ADDR_WIDTH = $clog2(COLS * ROWS)
+    parameter ADDR_WIDTH = $clog2((COLS * ROWS) * 4) // Character, Red, Green, Blue
 )(
     // Clocks and reset
     input  wire        pixel_clk,       // Pixel clock (25.175MHz for VGA)
@@ -32,6 +32,9 @@ module text_vram_top #(
     output wire        vsync,           // Vertical sync
     output wire        pixel_en,        // Pixel data valid
     output reg         pixel_data,      // Monochrome pixel output
+    output reg [7:0]   pixel_r,
+    output reg [7:0]   pixel_g,
+    output reg [7:0]   pixel_b,
 
     // CPU interface for VRAM access
     input  wire        cpu_clk,         // CPU clock
@@ -40,7 +43,6 @@ module text_vram_top #(
     input  wire [7:0]  cpu_wdata,       // Write data
     output wire [7:0]  cpu_rdata        // Read data
 );
-
     // Internal signals
     wire [11:0] pixel_x;
     wire [11:0] pixel_y;
@@ -58,6 +60,11 @@ module text_vram_top #(
 
     // Font ROM signals
     wire [7:0]  font_row_data;
+
+    // Font Color
+    wire [7:0]  disp_r;
+    wire [7:0]  disp_g;
+    wire [7:0]  disp_b;
 
     // Pipeline registers for timing alignment
     reg [2:0]   char_x_d1, char_x_d2;
@@ -107,6 +114,10 @@ module text_vram_top #(
         .clk        (pixel_clk),
         .disp_addr  (vram_addr),
         .disp_data  (char_code),
+        .disp_r     (disp_r),
+        .disp_g     (disp_g),
+        .disp_b     (disp_b),
+    
         .cpu_clk    (cpu_clk),
         .cpu_we     (cpu_we),
         .cpu_addr   (cpu_addr),
@@ -155,8 +166,22 @@ module text_vram_top #(
     always @(posedge pixel_clk or negedge rst_n) begin
         if (!rst_n) begin
             pixel_data <= 1'b0;
+            pixel_r    <= 8'h00;
+            pixel_g    <= 8'h00;
+            pixel_b    <= 8'h00;
         end else begin
-            pixel_data <= font_row_data[7 - char_x_d2];
+          if( font_row_data[7 - char_x_d2] ) begin
+            pixel_data <= 1'b1;
+            pixel_r    <= disp_r;
+            pixel_g    <= disp_g;
+            pixel_b    <= disp_b;
+          end
+          else begin
+            pixel_data <= 1'b0;
+            pixel_r    <= 8'h00;
+            pixel_g    <= 8'h00;
+            pixel_b    <= 8'h00;
+          end
         end
     end
 
