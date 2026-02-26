@@ -1,5 +1,14 @@
+// =========================================================
+// Text VRAM Controller 
+//
 // VGA Timing Generator
 // Generates HSYNC, VSYNC, and pixel enable signals
+//
+// Licensed under the MIT Licensed
+//
+// Copyright (c) 2026 by ORYZA (https://github.com/ORYZAPAO) 
+//
+// =========================================================
 
 module vga_timing #(
     // Default: VGA 640x480 @ 60Hz (25.175MHz pixel clock)

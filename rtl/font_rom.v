@@ -1,5 +1,14 @@
+// =========================================================
+// Text VRAM Controller 
+//
 // 8x8 ASCII Font ROM
 // Contains basic ASCII characters (0x20-0x7F)
+//
+// Licensed under the MIT Licensed
+//
+// Copyright (c) 2026 by ORYZA (https://github.com/ORYZAPAO) 
+//
+// =========================================================
 
 module font_rom (
     input  wire        clk,

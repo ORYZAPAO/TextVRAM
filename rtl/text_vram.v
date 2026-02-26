@@ -1,6 +1,14 @@
+// =========================================================
+// Text VRAM Controller 
+//
 // Text VRAM using BRAM
 // Dual-port RAM for CPU write and display read
-
+//
+// Licensed under the MIT Licensed
+//
+// Copyright (c) 2026 by ORYZA (https://github.com/ORYZAPAO) 
+//
+// =========================================================
 
 //
 // Page Size = [COLS x ROWS] byte

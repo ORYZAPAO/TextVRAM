@@ -1,6 +1,13 @@
+// =========================================================
 // Text VRAM Controller Top Module
+//
 // Integrates VGA timing, Font ROM, and Text VRAM
-
+//
+// Licensed under the MIT Licensed
+//
+// Copyright (c) 2026 by ORYZA (https://github.com/ORYZAPAO) 
+//
+// =========================================================
 module text_vram_top #(
     // Display resolution (default: VGA 640x480)
     parameter H_ACTIVE      = 640,
@@ -11,37 +18,37 @@ module text_vram_top #(
     parameter V_FRONT_PORCH = 10,
     parameter V_SYNC_PULSE  = 2,
     parameter V_BACK_PORCH  = 33,
-    parameter H_SYNC_POL    = 0,    // 0: negative, 1: positive
-    parameter V_SYNC_POL    = 0,    // 0: negative, 1: positive
+    parameter H_SYNC_POL    = 0,                     // 0: negative, 1: positive
+    parameter V_SYNC_POL    = 0,                     // 0: negative, 1: positive
 
     // Character parameters
-    parameter CHAR_WIDTH    = 8,    // Character width in pixels
-    parameter CHAR_HEIGHT   = 8,    // Character height in pixels
+    parameter CHAR_WIDTH    = 8,                     // Character width in pixels
+    parameter CHAR_HEIGHT   = 8,                     // Character height in pixels
 
     // Text screen size (calculated from display and character size)
-    parameter COLS = H_ACTIVE / CHAR_WIDTH,   // 80 columns for 640px
-    parameter ROWS = V_ACTIVE / CHAR_HEIGHT,  // 60 rows for 480px
+    parameter COLS = H_ACTIVE / CHAR_WIDTH,          // 80 columns for 640px
+    parameter ROWS = V_ACTIVE / CHAR_HEIGHT,         // 60 rows for 480px
     parameter ADDR_WIDTH = $clog2((COLS * ROWS) * 4) // Character, Red, Green, Blue
 )(
     // Clocks and reset
-    input  wire        pixel_clk,       // Pixel clock (25.175MHz for VGA)
-    input  wire        rst_n,           // Active low reset
+    input  wire        pixel_clk,            // Pixel clock (25.175MHz for VGA)
+    input  wire        rst_n,                // Active low reset
 
     // VGA output
-    output wire        hsync,           // Horizontal sync
-    output wire        vsync,           // Vertical sync
-    output wire        pixel_en,        // Pixel data valid
-    output reg         pixel_data,      // Monochrome pixel output
+    output wire        hsync,                // Horizontal sync
+    output wire        vsync,                // Vertical sync
+    output wire        pixel_en,             // Pixel data valid
+    output reg         pixel_data,           // Monochrome pixel output
     output reg [7:0]   pixel_r,
     output reg [7:0]   pixel_g,
     output reg [7:0]   pixel_b,
 
     // CPU interface for VRAM access
-    input  wire        cpu_clk,         // CPU clock
-    input  wire        cpu_we,          // Write enable
+    input  wire        cpu_clk,              // CPU clock
+    input  wire        cpu_we,               // Write enable
     input  wire [ADDR_WIDTH-1:0] cpu_addr,   // Address
-    input  wire [7:0]  cpu_wdata,       // Write data
-    output wire [7:0]  cpu_rdata        // Read data
+    input  wire [7:0]  cpu_wdata,            // Write data
+    output wire [7:0]  cpu_rdata             // Read data
 );
     // Internal signals
     wire [11:0] pixel_x;
