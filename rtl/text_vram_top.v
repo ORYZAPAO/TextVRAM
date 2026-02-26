@@ -125,8 +125,7 @@ module text_vram_top #(
         .vram_data  (char_code),
         .r     (vram_r),
         .g     (vram_g),
-        .b     (vram_b),
-    
+        .b     (vram_b),    
         .cpu_clk    (cpu_clk),
         .cpu_we     (cpu_we),
         .cpu_addr   (cpu_addr),
