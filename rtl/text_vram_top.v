@@ -21,7 +21,7 @@ module text_vram_top #(
     // Text screen size (calculated from display and character size)
     parameter COLS = H_ACTIVE / CHAR_WIDTH,   // 80 columns for 640px
     parameter ROWS = V_ACTIVE / CHAR_HEIGHT,  // 60 rows for 480px
-    parameter ADDR_WIDTH = $clog2(COLS * ROWS)
+    parameter ADDR_WIDTH = $clog2((COLS * ROWS) * 4) // Character, Red, Green, Blue
 )(
     // Clocks and reset
     input  wire        pixel_clk,       // Pixel clock (25.175MHz for VGA)
@@ -32,6 +32,9 @@ module text_vram_top #(
     output wire        vsync,           // Vertical sync
     output wire        pixel_en,        // Pixel data valid
     output reg         pixel_data,      // Monochrome pixel output
+    output reg [7:0]   pixel_r,
+    output reg [7:0]   pixel_g,
+    output reg [7:0]   pixel_b,
 
     // CPU interface for VRAM access
     input  wire        cpu_clk,         // CPU clock
@@ -40,7 +43,6 @@ module text_vram_top #(
     input  wire [7:0]  cpu_wdata,       // Write data
     output wire [7:0]  cpu_rdata        // Read data
 );
-
     // Internal signals
     wire [11:0] pixel_x;
     wire [11:0] pixel_y;
@@ -59,11 +61,17 @@ module text_vram_top #(
     // Font ROM signals
     wire [7:0]  font_row_data;
 
+    // Font Color
+    wire [7:0]  vram_r;
+    wire [7:0]  vram_g;
+    wire [7:0]  vram_b;
+
     // Pipeline registers for timing alignment
     reg [2:0]   char_x_d1, char_x_d2;
-    reg         pixel_en_d1, pixel_en_d2;
-    reg         hsync_d1, hsync_d2;
-    reg         vsync_d1, vsync_d2;
+    reg         pixel_en_d1, pixel_en_d2, pixel_en_d3;
+    reg         hsync_d1, hsync_d2, hsync_d3;
+    reg         vsync_d1, vsync_d2, vsync_d3;
+    reg [7:0]   vram_r_d1, vram_g_d1, vram_b_d1;
 
     // Calculate character position from pixel position
     assign char_col = pixel_x[9:3];  // pixel_x / 8
@@ -73,6 +81,8 @@ module text_vram_top #(
 
     // VRAM address = row * COLS + col
     assign vram_addr = char_row * COLS + char_col;
+
+    wire hsync_raw, vsync_raw;
 
     // VGA Timing Generator
     vga_timing #(
@@ -96,7 +106,6 @@ module text_vram_top #(
         .pixel_y    (pixel_y)
     );
 
-    wire hsync_raw, vsync_raw;
 
     // Text VRAM
     text_vram #(
@@ -105,8 +114,12 @@ module text_vram_top #(
         .ADDR_WIDTH (ADDR_WIDTH)
     ) u_text_vram (
         .clk        (pixel_clk),
-        .disp_addr  (vram_addr),
-        .disp_data  (char_code),
+        .vram_addr  (vram_addr),
+        .vram_data  (char_code),
+        .r     (vram_r),
+        .g     (vram_g),
+        .b     (vram_b),
+    
         .cpu_clk    (cpu_clk),
         .cpu_we     (cpu_we),
         .cpu_addr   (cpu_addr),
@@ -131,22 +144,36 @@ module text_vram_top #(
             char_x_d2   <= 3'd0;
             pixel_en_d1 <= 1'b0;
             pixel_en_d2 <= 1'b0;
+            pixel_en_d3 <= 1'b0;
             hsync_d1    <= ~H_SYNC_POL;
             hsync_d2    <= ~H_SYNC_POL;
+            hsync_d3    <= ~H_SYNC_POL;
             vsync_d1    <= ~V_SYNC_POL;
             vsync_d2    <= ~V_SYNC_POL;
+            vsync_d3    <= ~V_SYNC_POL;
+            vram_r_d1   <= 8'h00;
+            vram_g_d1   <= 8'h00;
+            vram_b_d1   <= 8'h00;
         end else begin
-            // Stage 1
+            // Stage 1: VRAM read latency
             char_x_d1   <= char_x;
             pixel_en_d1 <= vga_pixel_en;
             hsync_d1    <= hsync_raw;
             vsync_d1    <= vsync_raw;
 
-            // Stage 2
+            // Stage 2: Font ROM read latency
             char_x_d2   <= char_x_d1;
             pixel_en_d2 <= pixel_en_d1;
             hsync_d2    <= hsync_d1;
             vsync_d2    <= vsync_d1;
+            vram_r_d1   <= vram_r;
+            vram_g_d1   <= vram_g;
+            vram_b_d1   <= vram_b;
+
+            // Stage 3: Output register latency
+            pixel_en_d3 <= pixel_en_d2;
+            hsync_d3    <= hsync_d2;
+            vsync_d3    <= vsync_d2;
         end
     end
 
@@ -155,14 +182,28 @@ module text_vram_top #(
     always @(posedge pixel_clk or negedge rst_n) begin
         if (!rst_n) begin
             pixel_data <= 1'b0;
+            pixel_r    <= 8'h00;
+            pixel_g    <= 8'h00;
+            pixel_b    <= 8'h00;
         end else begin
-            pixel_data <= font_row_data[7 - char_x_d2];
+          if( font_row_data[7 - char_x_d2] ) begin
+            pixel_data <= 1'b1;
+            pixel_r    <= vram_r_d1;
+            pixel_g    <= vram_g_d1;
+            pixel_b    <= vram_b_d1;
+          end
+          else begin
+            pixel_data <= 1'b0;
+            pixel_r    <= 8'h00;
+            pixel_g    <= 8'h00;
+            pixel_b    <= 8'h00;
+          end
         end
     end
 
     // Output signals with proper pipeline delay
-    assign hsync    = hsync_d2;
-    assign vsync    = vsync_d2;
-    assign pixel_en = pixel_en_d2;
+    assign hsync    = hsync_d3;
+    assign vsync    = vsync_d3;
+    assign pixel_en = pixel_en_d3;
 
 endmodule
