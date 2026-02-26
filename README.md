@@ -4,14 +4,7 @@
 ただしVGA(640x480)画像サイズですが、グラフィック機能はありません。  
   
 使い方は、後述のメモリVRAM領域のアドレスに、ASCIIコードと、Red、Green、Blueの色情報を1byte書き込むだけです（デフォルトは白:RGB(0xFF,0xFF,0xFF）。
-
-
-## 他FPGAへの移植について
-GOWINのFPGA搭載したSipeedの[Tang Nano 9K](https://wiki.sipeed.com/hardware/en/tang/Tang-Nano-9K/Nano-9K.html) 向けに作成しています。
-
-
-が、AMD(Xilinx)などの他のFPGAへ移植するには、HDMI(DVI)のTX出力のIPを他FPGAベンダーのIPに置き換えれば可能かと思います。  
-あとVRAM本体は (* ram_style = "block" *) 指定付きでreg変数で定義していますが、非同期に対応したDualPort RAMがあれば問題ないと思います。  
+    
 
 
 # Text VRAM コントローラ 仕様書
